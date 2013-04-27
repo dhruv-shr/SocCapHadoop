@@ -42,6 +42,8 @@ public class ForwardPropagationMapper extends
 				CommonConstants.SOURCE_VERTEX_ID, -1);
 		int currentIteration = context.getConfiguration().getInt(
 				CommonConstants.CURRENT_ITERATION, -1);
+		System.out.println("++++++++++ : In the mapper source : "
+				+ sourceVertexId + " Iteration : " + currentIteration);
 
 		if (sourceVertexId == vertexId.get() && currentIteration == 0) {
 			/**
@@ -52,6 +54,9 @@ public class ForwardPropagationMapper extends
 			try {
 				/* adding a message to itself */
 				Message message = new Message(vertexId.get(), 0, 1, 0);
+				System.out.println("++++++++++++ Emitting Message : "
+						+ message.toString());
+
 				/* emitting both the message and the vertex value */
 				context.write(vertexId, GenericUtil.makeGeneric(message));
 				context.write(vertexId, GenericUtil.makeGeneric(vertexValue));
@@ -113,5 +118,4 @@ public class ForwardPropagationMapper extends
 		}
 
 	}
-
 }

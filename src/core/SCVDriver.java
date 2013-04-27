@@ -65,7 +65,7 @@ public class SCVDriver {
 			conf.set("mapred.reduce.parallel.copies", "30");
 			conf.set("mapred.map.tasks", "5");
 			// conf.set("mapred.tasktracker.map.tasks.maximum","6");
-			conf.set("mapred.reduce.tasks", "" + 100);
+			conf.set("mapred.reduce.tasks", "" + 4);
 			conf.set("mapred.compress.map.output", "true");
 			conf.set("mapred.output.compression.type", "BLOCK");
 			conf.set("mapred.map.output.compression.codec",
@@ -92,6 +92,8 @@ public class SCVDriver {
 			 */
 			iterativeJob.getConfiguration().setInt(
 					CommonConstants.SOURCE_VERTEX_ID, 1);
+			iterativeJob.getConfiguration().setInt(
+					CommonConstants.CURRENT_ITERATION, iteration);
 			/******************************************************************/
 			/* SETTING MAPPER CONFIGURATINOS */
 			/******************************************************************/

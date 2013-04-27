@@ -21,7 +21,7 @@ import core.CommonConstants;
 
 public class GenericValueReader extends RecordReader<IntWritable, GenericValue> {
 
-	private LineRecordReader lineReader=new LineRecordReader();
+	private LineRecordReader lineReader = new LineRecordReader();
 	private String[] splits;
 
 	@Override
@@ -31,12 +31,16 @@ public class GenericValueReader extends RecordReader<IntWritable, GenericValue> 
 
 	@Override
 	public IntWritable getCurrentKey() throws IOException, InterruptedException {
+		splits = lineReader.getCurrentValue().toString().split(
+				CommonConstants.TAB);
 		return new IntWritable(Integer.parseInt(splits[0]));
 	}
 
 	@Override
 	public GenericValue getCurrentValue() throws IOException,
 			InterruptedException {
+		splits = lineReader.getCurrentValue().toString().split(
+				CommonConstants.TAB);
 
 		/**
 		 * We need to determine if the currently read value is of type
@@ -125,8 +129,6 @@ public class GenericValueReader extends RecordReader<IntWritable, GenericValue> 
 	public void initialize(InputSplit inputSplit, TaskAttemptContext context)
 			throws IOException, InterruptedException {
 		lineReader.initialize(inputSplit, context);
-		splits = lineReader.getCurrentValue().toString().split(
-				CommonConstants.TAB);
 
 	}
 

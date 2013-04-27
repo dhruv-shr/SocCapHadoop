@@ -52,6 +52,8 @@ public class ForwardPropagationReducer extends
 				msgList.add((Message) ei);
 			}
 		}
+		System.out.println("+++++++++++++++++++ In the reducer : " + vertexId);
+
 		if (msgList.size() == 0) {
 			/*
 			 * no incoming messages hence just emit the vertex for the next

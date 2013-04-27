@@ -16,7 +16,7 @@ import core.CommonConstants;
  * @author dhruvsharma1
  * 
  */
-public class VertexValue implements Writable, EmitInterface {
+public class VertexValue extends GenericValue implements Writable {
 
 	/**
 	 * The current minimum distance of this vertex from the source vertex.
@@ -84,11 +84,11 @@ public class VertexValue implements Writable, EmitInterface {
 		this.discoveryDistance = dataInputStream.readDouble();
 		this.scv = dataInputStream.readDouble();
 		this.active = dataInputStream.readBoolean();
-
-		int start = dataInputStream.readUTF().trim().indexOf("{");
-		int stop = dataInputStream.readUTF().trim().indexOf("}");
-		String adjListString = dataInputStream.readUTF().substring(start + 1,
-				stop);
+		String[] str = dataInputStream.readUTF().split(CommonConstants.TAB);
+		System.out.println("+++++++++++++++++" + str[0]);
+		int start = str[0].indexOf("{");
+		int stop = str[1].indexOf("}");
+		String adjListString = str[0].substring(start + 1, stop);
 		Map<Integer, Double> adjacencyList = new HashMap<Integer, Double>();
 		if (!adjListString.isEmpty()) {
 			String[] adjList = adjListString.split(",");
@@ -99,10 +99,10 @@ public class VertexValue implements Writable, EmitInterface {
 		}
 		this.adjacencyList = adjacencyList;
 
-		start = dataInputStream.readUTF().trim().indexOf("{");
-		stop = dataInputStream.readUTF().trim().indexOf("}");
-		String bpMsgString = dataInputStream.readUTF().substring(start + 1,
-				stop);
+		int start2 = str[1].indexOf("{");
+		int stop2 = str[1].indexOf("}");
+		String bpMsgString = str[1].substring(start2 + 1, stop2);
+		System.out.println("+++++++++++++++++" + str[1]);
 		Map<BPMessageKey, Integer> bpMsgList = new HashMap<BPMessageKey, Integer>();
 		if (!bpMsgString.isEmpty()) {
 			String[] bpMsgListString = bpMsgString.split(",");
@@ -115,10 +115,10 @@ public class VertexValue implements Writable, EmitInterface {
 		}
 		this.activeIncomingEdges = bpMsgList;
 
-		start = dataInputStream.readUTF().trim().indexOf("{");
-		stop = dataInputStream.readUTF().trim().indexOf("}");
-		String hopPktCntString = dataInputStream.readUTF().substring(start + 1,
-				stop);
+		int start3 = str[2].indexOf("{");
+		int stop3 = str[2].indexOf("}");
+		String hopPktCntString = str[2].substring(start3 + 1, stop3);
+		System.out.println("+++++++++++++++++" + str[2]);
 		Map<Integer, Integer> hopPktCntMap = new HashMap<Integer, Integer>();
 		if (!hopPktCntString.isEmpty()) {
 			String[] hpcString = hopPktCntString.split(",");
@@ -137,6 +137,7 @@ public class VertexValue implements Writable, EmitInterface {
 		dataOutputStream.writeBoolean(this.active);
 		StringBuffer buf = new StringBuffer();
 		buf.append("{");
+		int size = 0;
 		for (Iterator<Integer> adjListIter = adjacencyList.keySet().iterator(); adjListIter
 				.hasNext();) {
 			int adjId = adjListIter.next();
@@ -144,34 +145,46 @@ public class VertexValue implements Writable, EmitInterface {
 			buf.append(Integer.toString(adjId));
 			buf.append(CommonConstants.COMMA);
 			buf.append(Double.toString(wt));
+			if (size < adjacencyList.size() - 1) {
+				buf.append(CommonConstants.COMMA);
+			}
+			size++;
 		}
 		buf.append("}");
-		dataOutputStream.writeUTF(buf.toString());
+		buf.append(CommonConstants.TAB);
 
-		StringBuffer buf2 = new StringBuffer();
 		buf.append("{");
+		size = 0;
 		for (Iterator<BPMessageKey> incEdgeIter = activeIncomingEdges.keySet()
 				.iterator(); incEdgeIter.hasNext();) {
 			BPMessageKey k = incEdgeIter.next();
 			int v = activeIncomingEdges.get(k);
-			buf2.append(k.toString());
-			buf2.append(CommonConstants.COMMA);
-			buf2.append(Integer.toString(v));
+			buf.append(k.toString());
+			buf.append(CommonConstants.COMMA);
+			buf.append(Integer.toString(v));
+			if (size < activeIncomingEdges.size() - 1) {
+				buf.append(CommonConstants.COMMA);
+			}
+			size++;
 		}
-		buf2.append("}");
-		dataOutputStream.writeUTF(buf2.toString());
+		buf.append("}");
+		buf.append(CommonConstants.TAB);
 
-		StringBuffer buf3 = new StringBuffer();
 		buf.append("{");
+		size = 0;
 		for (Iterator<Integer> adjListIter = hopPacketCountMap.keySet()
 				.iterator(); adjListIter.hasNext();) {
 			int adjId = adjListIter.next();
 			int pkts = hopPacketCountMap.get(adjId);
-			buf3.append(Integer.toString(adjId));
-			buf3.append(CommonConstants.COMMA);
-			buf3.append(Integer.toString(pkts));
+			buf.append(Integer.toString(adjId));
+			buf.append(CommonConstants.COMMA);
+			buf.append(Integer.toString(pkts));
+			if (size < hopPacketCountMap.size() - 1) {
+				buf.append(CommonConstants.COMMA);
+			}
+			size++;
 		}
-		buf3.append("}");
+		buf.append("}");
 		dataOutputStream.writeUTF(buf.toString());
 
 	}

@@ -7,7 +7,7 @@ import org.apache.hadoop.io.GenericWritable;
  * @author dhruvsharma1
  * 
  */
-public class GenericValue extends GenericWritable {
+public class GenericValue extends GenericWritable implements EmitInterface {
 
 	private static Class[] CLASSES = { VertexValue.class, Message.class, };
 
@@ -17,16 +17,8 @@ public class GenericValue extends GenericWritable {
 	}
 
 	@Override
-	public String toString() {
-		EmitInterface ei = (EmitInterface) this.get();
-		if (ei.getEmitType() == EmitType.VERTEX) {
-			return ((VertexValue) ei).toString();
-		} else if (ei.getEmitType() == EmitType.MESSAGE) {
-			return ((Message) ei).toString();
-		} else {
-			return null;
-		}
-
+	public EmitType getEmitType() {
+		return this.getEmitType();
 	}
 
 }

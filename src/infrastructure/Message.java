@@ -11,7 +11,7 @@ import org.apache.hadoop.io.Writable;
  * @author dhruvsharma1
  * 
  */
-public class Message implements Writable, EmitInterface {
+public class Message extends GenericValue implements Writable {
 
 	private int sourceId;
 
