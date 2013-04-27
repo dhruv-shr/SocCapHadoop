@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<project basedir="." default="build" name="SocialCapitalProject">
+<project basedir="." default="build" name="TwitterProject">
     <property environment="env"/>
     <property name="debuglevel" value="source,lines,vars"/>
     <property name="target" value="1.6"/>
@@ -9,6 +9,7 @@
     <property name="build.dir"        value="build"/>
     <property name="classes.dir"      value="${build.dir}"/>
     <property name="external.lib.dir" value="external"/>
+	<property name="CONFIG.HOME"      value="config" />
     <property name="final.jar"        value="${bin.dir}/"/>
 	<property name="jar.file"         value="dist-soc-cap.jar"/>
     <property name="main.class"       value="core.SCVDriver"/>
@@ -45,16 +46,18 @@
             <classpath refid="project.classpath"/>   
         </javac>
     </target>
+    
 
     <target name="build-jar" depends="build">
         <delete file="${bin.dir}/${jar.file}" />
     	<jar destfile="${bin.dir}/${jar.file}"  
-    	        basedir="${build.dir}" includes="**/*.class, **/*.properties">
+    	        basedir="${build.dir}">
     					<manifest>
     						<attribute name="Built-By" value="Dhruv Sharma" />
     						<attribute name="Main-Class" value="${main.class}" />
     					</manifest>
-    		    <zipgroupfileset dir="${external.lib.dir}" includes="**/*.jar" /> 
+    		    <fileset dir="${classes.dir}" includes="**/*.class, **/*.properties" /> 
+    	        <zipgroupfileset dir="${external.lib.dir}" includes="**/*.jar" /> 
     	    </jar>
     </target>
 

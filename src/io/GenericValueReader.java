@@ -21,7 +21,7 @@ import core.CommonConstants;
 
 public class GenericValueReader extends RecordReader<IntWritable, GenericValue> {
 
-	private LineRecordReader lineReader;
+	private LineRecordReader lineReader=new LineRecordReader();
 	private String[] splits;
 
 	@Override

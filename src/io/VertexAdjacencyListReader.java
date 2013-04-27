@@ -23,7 +23,7 @@ import core.CommonConstants;
 public class VertexAdjacencyListReader extends
 		RecordReader<IntWritable, VertexValue> {
 
-	private LineRecordReader lineReader;
+	private LineRecordReader lineReader = new LineRecordReader();
 	private String[] splits;
 
 	@Override
@@ -33,6 +33,8 @@ public class VertexAdjacencyListReader extends
 
 	@Override
 	public IntWritable getCurrentKey() throws IOException, InterruptedException {
+		splits = lineReader.getCurrentValue().toString().split(
+				CommonConstants.TAB);
 		return new IntWritable(Integer.parseInt(splits[0]));
 	}
 
@@ -45,6 +47,8 @@ public class VertexAdjacencyListReader extends
 		 * {src,hops,pkts,src,hops,pkts} <tab> splits[5] {hops,pkts,hops,pkts}
 		 * <new-line> splits[6]
 		 */
+		splits = lineReader.getCurrentValue().toString().split(
+				CommonConstants.TAB);
 		VertexValue vertexValue = new VertexValue();
 		vertexValue.setActive(Boolean.parseBoolean(splits[1]));
 		vertexValue.setDiscoveryDistance(Double.parseDouble(splits[2]));
@@ -102,9 +106,6 @@ public class VertexAdjacencyListReader extends
 	public void initialize(InputSplit inputSplit, TaskAttemptContext context)
 			throws IOException, InterruptedException {
 		lineReader.initialize(inputSplit, context);
-		splits = lineReader.getCurrentValue().toString().split(
-				CommonConstants.TAB);
-
 	}
 
 	@Override
