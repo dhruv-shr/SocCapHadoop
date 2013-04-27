@@ -45,7 +45,7 @@ public class ForwardPropagationReducer extends
 		List<Message> msgList = new ArrayList<Message>();
 		while (values.iterator().hasNext()) {
 			GenericValue val = values.iterator().next();
-			EmitInterface ei = (EmitInterface) val;
+			EmitInterface ei = (EmitInterface) val.get();
 			if (ei.getEmitType().equals(EmitType.VERTEX)) {
 				vertexValue = (VertexValue) ei;
 			} else {
@@ -66,11 +66,14 @@ public class ForwardPropagationReducer extends
 			 * messages to this vertex and set it to active for the mext map
 			 * iteration.
 			 */
+			boolean activeFlag = false;
 			for (Iterator<Message> msgIter = msgList.iterator(); msgIter
 					.hasNext();) {
 				Message msg = msgIter.next();
-				vertexValue.addIncomingMessage(msg);
-				vertexValue.setActive(true);
+				if (vertexValue.addIncomingMessage(msg)) {
+					activeFlag = true;
+				}
+				vertexValue.setActive(activeFlag);
 			}
 		}
 		try {

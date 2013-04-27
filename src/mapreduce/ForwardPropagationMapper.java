@@ -4,16 +4,12 @@ import java.io.IOException;
 import java.util.Iterator;
 import java.util.logging.Logger;
 
-import infrastructure.EmitInterface;
-import infrastructure.EmitType;
 import infrastructure.GenericValue;
 import infrastructure.Message;
 import infrastructure.VertexValue;
 
 import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.mapreduce.Mapper;
-
-import util.GenericUtil;
 
 import core.CommonConstants;
 
@@ -43,7 +39,8 @@ public class ForwardPropagationMapper extends
 		int currentIteration = context.getConfiguration().getInt(
 				CommonConstants.CURRENT_ITERATION, -1);
 		System.out.println("++++++++++ : In the mapper source : "
-				+ sourceVertexId + " Iteration : " + currentIteration);
+				+ sourceVertexId + " Iteration : " + currentIteration
+				+ " Current Vertex Id : " + vertexId.get());
 
 		if (sourceVertexId == vertexId.get() && currentIteration == 0) {
 			/**
@@ -54,12 +51,13 @@ public class ForwardPropagationMapper extends
 			try {
 				/* adding a message to itself */
 				Message message = new Message(vertexId.get(), 0, 1, 0);
+				GenericValue genVal = new GenericValue();
+				genVal.set(message);
 				System.out.println("++++++++++++ Emitting Message : "
 						+ message.toString());
 
 				/* emitting both the message and the vertex value */
-				context.write(vertexId, GenericUtil.makeGeneric(message));
-				context.write(vertexId, GenericUtil.makeGeneric(vertexValue));
+				context.write(vertexId, genVal);
 			} catch (IOException e) {
 				LOG.info(e.getMessage());
 			} catch (InterruptedException e) {
@@ -71,13 +69,6 @@ public class ForwardPropagationMapper extends
 			 * that the vertex is inactive and emit the vertex and the activity
 			 * state.
 			 */
-			try {
-				context.write(vertexId, GenericUtil.makeGeneric(vertexValue));
-			} catch (IOException e) {
-				LOG.info(e.getMessage());
-			} catch (InterruptedException e) {
-				LOG.info(e.getMessage());
-			}
 		} else if (vertexValue.isActive()
 				&& currentIteration <= CommonConstants.HOPS_THRESHOLD) {
 			/**
@@ -100,21 +91,25 @@ public class ForwardPropagationMapper extends
 				try {
 					Message message = new Message(vertexId.get(),
 							currentIteration, packets, distance);
-					context.write(new IntWritable(adjacentNodeId), GenericUtil
-							.makeGeneric(message));
+					GenericValue genVal = new GenericValue();
+					genVal.set(message);
+					context.write(new IntWritable(adjacentNodeId), genVal);
 				} catch (IOException e) {
 					LOG.info(e.getMessage());
 				} catch (InterruptedException e) {
 					LOG.info(e.getMessage());
 				}
 			}
-			try {
-				context.write(vertexId, GenericUtil.makeGeneric(vertexValue));
-			} catch (IOException e) {
-				LOG.info(e.getMessage());
-			} catch (InterruptedException e) {
-				LOG.info(e.getMessage());
-			}
+		}
+		try {
+			System.out.println("Emitting Vertex : " + vertexValue.toString());
+			GenericValue genVal = new GenericValue();
+			genVal.set(vertexValue);
+			context.write(vertexId, genVal);
+		} catch (IOException e) {
+			LOG.info(e.getMessage());
+		} catch (InterruptedException e) {
+			LOG.info(e.getMessage());
 		}
 
 	}

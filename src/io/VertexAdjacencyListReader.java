@@ -49,7 +49,7 @@ public class VertexAdjacencyListReader extends
 		 */
 		splits = lineReader.getCurrentValue().toString().split(
 				CommonConstants.TAB);
-		VertexValue vertexValue = new VertexValue();
+	VertexValue vertexValue = new VertexValue();
 		vertexValue.setActive(Boolean.parseBoolean(splits[1]));
 		vertexValue.setDiscoveryDistance(Double.parseDouble(splits[2]));
 		vertexValue.setScv(Double.parseDouble(splits[3]));

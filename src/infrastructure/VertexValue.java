@@ -16,7 +16,7 @@ import core.CommonConstants;
  * @author dhruvsharma1
  * 
  */
-public class VertexValue extends GenericValue implements Writable {
+public class VertexValue implements Writable, EmitInterface {
 
 	/**
 	 * The current minimum distance of this vertex from the source vertex.
@@ -81,13 +81,13 @@ public class VertexValue extends GenericValue implements Writable {
 	}
 
 	public void readFields(DataInput dataInputStream) throws IOException {
+		this.active = dataInputStream.readBoolean();
 		this.discoveryDistance = dataInputStream.readDouble();
 		this.scv = dataInputStream.readDouble();
-		this.active = dataInputStream.readBoolean();
 		String[] str = dataInputStream.readUTF().split(CommonConstants.TAB);
 		System.out.println("+++++++++++++++++" + str[0]);
 		int start = str[0].indexOf("{");
-		int stop = str[1].indexOf("}");
+		int stop = str[0].indexOf("}");
 		String adjListString = str[0].substring(start + 1, stop);
 		Map<Integer, Double> adjacencyList = new HashMap<Integer, Double>();
 		if (!adjListString.isEmpty()) {
@@ -132,9 +132,9 @@ public class VertexValue extends GenericValue implements Writable {
 	}
 
 	public void write(DataOutput dataOutputStream) throws IOException {
+		dataOutputStream.writeBoolean(this.active);
 		dataOutputStream.writeDouble(this.discoveryDistance);
 		dataOutputStream.writeDouble(this.scv);
-		dataOutputStream.writeBoolean(this.active);
 		StringBuffer buf = new StringBuffer();
 		buf.append("{");
 		int size = 0;
@@ -209,21 +209,87 @@ public class VertexValue extends GenericValue implements Writable {
 		return hopPacketCountMap;
 	}
 
-	public void addIncomingMessage(Message incomingMessage) {
+	public boolean addIncomingMessage(Message incomingMessage) {
 		BPMessageKey bpMsgKey = new BPMessageKey(incomingMessage.getSourceId(),
 				incomingMessage.getHops());
 		if (incomingMessage.getDistance() < this.discoveryDistance) {
 			this.resetTemproryValues();
+			this.discoveryDistance = incomingMessage.getDistance();
 			this.activeIncomingEdges
 					.put(bpMsgKey, incomingMessage.getPackets());
 			this.hopPacketCountMap.put(incomingMessage.getHops(),
 					incomingMessage.getPackets());
+			return true;
 		} else if (incomingMessage.getDistance() == this.discoveryDistance) {
 			this.activeIncomingEdges
 					.put(bpMsgKey, incomingMessage.getPackets());
 			this.hopPacketCountMap.put(incomingMessage.getHops(),
 					this.hopPacketCountMap.get(incomingMessage.getHops())
 							+ incomingMessage.getPackets());
+			return true;
 		}
+		return false;
+	}
+
+	@Override
+	public String toString() {
+		StringBuffer buf = new StringBuffer();
+		buf.append(Boolean.toString(this.active));
+		buf.append(CommonConstants.TAB);
+		buf.append(Double.toString(this.discoveryDistance));
+		buf.append(CommonConstants.TAB);
+		buf.append(Double.toString(this.scv));
+		buf.append(CommonConstants.TAB);
+
+		buf.append("{");
+		int size = 0;
+		for (Iterator<Integer> adjListIter = adjacencyList.keySet().iterator(); adjListIter
+				.hasNext();) {
+			int adjId = adjListIter.next();
+			double wt = adjacencyList.get(adjId);
+			buf.append(Integer.toString(adjId));
+			buf.append(CommonConstants.COMMA);
+			buf.append(Double.toString(wt));
+			if (size < adjacencyList.size() - 1) {
+				buf.append(CommonConstants.COMMA);
+			}
+			size++;
+		}
+		buf.append("}");
+		buf.append(CommonConstants.TAB);
+
+		buf.append("{");
+		size = 0;
+		for (Iterator<BPMessageKey> incEdgeIter = activeIncomingEdges.keySet()
+				.iterator(); incEdgeIter.hasNext();) {
+			BPMessageKey k = incEdgeIter.next();
+			int v = activeIncomingEdges.get(k);
+			buf.append(k.toString());
+			buf.append(CommonConstants.COMMA);
+			buf.append(Integer.toString(v));
+			if (size < activeIncomingEdges.size() - 1) {
+				buf.append(CommonConstants.COMMA);
+			}
+			size++;
+		}
+		buf.append("}");
+		buf.append(CommonConstants.TAB);
+
+		buf.append("{");
+		size = 0;
+		for (Iterator<Integer> adjListIter = hopPacketCountMap.keySet()
+				.iterator(); adjListIter.hasNext();) {
+			int adjId = adjListIter.next();
+			int pkts = hopPacketCountMap.get(adjId);
+			buf.append(Integer.toString(adjId));
+			buf.append(CommonConstants.COMMA);
+			buf.append(Integer.toString(pkts));
+			if (size < hopPacketCountMap.size() - 1) {
+				buf.append(CommonConstants.COMMA);
+			}
+			size++;
+		}
+		buf.append("}");
+		return buf.toString();
 	}
 }

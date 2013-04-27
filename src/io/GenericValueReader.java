@@ -15,8 +15,6 @@ import org.apache.hadoop.mapreduce.RecordReader;
 import org.apache.hadoop.mapreduce.TaskAttemptContext;
 import org.apache.hadoop.mapreduce.lib.input.LineRecordReader;
 
-import util.GenericUtil;
-
 import core.CommonConstants;
 
 public class GenericValueReader extends RecordReader<IntWritable, GenericValue> {
@@ -41,7 +39,6 @@ public class GenericValueReader extends RecordReader<IntWritable, GenericValue> 
 			InterruptedException {
 		splits = lineReader.getCurrentValue().toString().split(
 				CommonConstants.TAB);
-
 		/**
 		 * We need to determine if the currently read value is of type
 		 * VertexValue of MEssage.
@@ -50,12 +47,14 @@ public class GenericValueReader extends RecordReader<IntWritable, GenericValue> 
 			/**
 			 * If generic value is of type MEssage
 			 */
+			GenericValue genVal = new GenericValue();
 			Message message = new Message();
 			message.setSourceId(Integer.parseInt(splits[1]));
 			message.setHops(Integer.parseInt(splits[2]));
 			message.setPackets(Integer.parseInt(splits[3]));
 			message.setDistance(Double.parseDouble(splits[4]));
-			return GenericUtil.makeGeneric(message);
+			genVal.set(message);
+			return genVal;
 		} else if (splits.length == 7) {
 			/**
 			 * If Generic Value is of type Vertex Value
@@ -108,8 +107,9 @@ public class GenericValueReader extends RecordReader<IntWritable, GenericValue> 
 				}
 			}
 			vertexValue.setHopPacketCountMap(hopPktCntMap);
-
-			return GenericUtil.makeGeneric(vertexValue);
+			GenericValue genVal = new GenericValue();
+			genVal.set(genVal);
+			return genVal;
 		} else {
 			/**
 			 * This should not happen. If this is happening there is some
@@ -129,7 +129,6 @@ public class GenericValueReader extends RecordReader<IntWritable, GenericValue> 
 	public void initialize(InputSplit inputSplit, TaskAttemptContext context)
 			throws IOException, InterruptedException {
 		lineReader.initialize(inputSplit, context);
-
 	}
 
 	@Override

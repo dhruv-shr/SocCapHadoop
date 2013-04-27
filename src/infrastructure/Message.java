@@ -6,12 +6,14 @@ import java.io.IOException;
 
 import org.apache.hadoop.io.Writable;
 
+import core.CommonConstants;
+
 /**
  * 
  * @author dhruvsharma1
  * 
  */
-public class Message extends GenericValue implements Writable {
+public class Message implements Writable, EmitInterface {
 
 	private int sourceId;
 
@@ -88,6 +90,19 @@ public class Message extends GenericValue implements Writable {
 		 * This class is a message class and will emit a Message Class object.
 		 */
 		return EmitType.MESSAGE;
+	}
+
+	@Override
+	public String toString() {
+		StringBuffer buf = new StringBuffer();
+		buf.append(Integer.toString(this.sourceId));
+		buf.append(CommonConstants.TAB);
+		buf.append(Integer.toString(this.hops));
+		buf.append(CommonConstants.TAB);
+		buf.append(Integer.toString(this.packets));
+		buf.append(CommonConstants.TAB);
+		buf.append(Double.toString(this.distance));
+		return buf.toString();
 	}
 
 }
