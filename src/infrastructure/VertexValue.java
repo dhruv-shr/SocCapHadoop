@@ -223,9 +223,16 @@ public class VertexValue implements Writable, EmitInterface {
 		} else if (incomingMessage.getDistance() == this.discoveryDistance) {
 			this.activeIncomingEdges
 					.put(bpMsgKey, incomingMessage.getPackets());
-			this.hopPacketCountMap.put(incomingMessage.getHops(),
-					this.hopPacketCountMap.get(incomingMessage.getHops())
-							+ incomingMessage.getPackets());
+			if (this.hopPacketCountMap.containsKey(incomingMessage.getHops())) {
+				this.hopPacketCountMap.put(incomingMessage.getHops(),
+						this.hopPacketCountMap.get(incomingMessage.getHops())
+								+ incomingMessage.getPackets());
+			} else {
+				this.hopPacketCountMap.put(incomingMessage.getHops(),
+						incomingMessage.getPackets());
+
+			}
+
 			return true;
 		}
 		return false;
