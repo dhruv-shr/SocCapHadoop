@@ -29,6 +29,15 @@ public class VertexValue implements Writable, EmitInterface {
 	private double scv = 0d;
 
 	private boolean active = false;
+	private int vertexID ;
+
+	public int getVertexID() {
+		return vertexID;
+	}
+
+	public void setVertexID(int vertexID) {
+		this.vertexID = vertexID;
+	}
 
 	/**
 	 * The adjacency list of the vertex, with the destination id as the key and
